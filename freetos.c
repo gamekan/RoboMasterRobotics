@@ -117,7 +117,7 @@ void StartDefaultTask(void const * argument)
 	for(int i=0; i<4; i++) //changed can stuff
 	{
 		PID_struct_init(&pid_spd[i], POSITION_PID, 20000, 20000,
-									1.5f,	0.1f,	0.0f	);  //4 motos angular rate closeloop.
+									1.5f,	0.1f,	0.0f	);  //4 motos angular rate closeloop. 
 	}
 	__HAL_TIM_SetCompare(&htim5, TIM_CHANNEL_1, 1000);
 	
@@ -135,10 +135,10 @@ void StartDefaultTask(void const * argument)
 			{
 				pid_calc(&pid_spd[i], moto_chassis[i].speed_rpm, set_spd[i]);
 			}
-			set_moto_current(&hcan1, pid_spd[4].pos_out, 
-									pid_spd[5].pos_out,
-									pid_spd[6].pos_out,
-									pid_spd[20].pos_out); //spd 0-3 to 4-7
+			set_moto_current(&hcan1, pid_spd[0].pos_out, 
+									pid_spd[1].pos_out,
+									pid_spd[2].pos_out,
+									pid_spd[3].pos_out); //spd 0-3 to 4-7
 		  
 		#elif defined PWM_CONTROL
 			__HAL_TIM_SetCompare(&htim5, TIM_CHANNEL_1, 1000+set_spd[0]);//spd range[0,999]
@@ -178,9 +178,73 @@ void StartDefaultTask(void const * argument)
 	if(key_cnt>10)
 		key_cnt = 0;
 #if defined CAN_CONTROL
-	set_spd[0] = key_cnt*500; //need to know 500 as unit parameters for point system
 	
+//	set_spd[0] = key_cnt*5; //need to know 500 as unit parameters for point system
+//	set_spd[1] = key_cnt*60;
+//	set_spd[2] = key_cnt*300;
+//	set_spd[3] = key_cnt*500;
 	//set_spd[0] = set_spd[1] = set_spd[2] = set_spd[3] = key_cnt*500; // speed
+	if (key_cnt == 1){ //back
+		set_spd[0] = key_cnt*100; 
+		set_spd[1] = key_cnt*-100;
+		set_spd[2] = key_cnt*-100;
+		set_spd[3] = key_cnt*100;
+	}
+	if (key_cnt == 2){  //front
+		set_spd[0] = key_cnt*-100; 
+		set_spd[1] = key_cnt*100;
+		set_spd[2] = key_cnt*100;
+		set_spd[3] = key_cnt*-100;
+	}
+	if (key_cnt == 3){  //left horiz
+		set_spd[0] = key_cnt*-100; 
+		set_spd[1] = key_cnt*-100;
+		set_spd[2] = key_cnt*100;
+		set_spd[3] = key_cnt*100; 
+	}
+	if (key_cnt == 4){  //right horiz
+		set_spd[0] = key_cnt*100; 
+		set_spd[1] = key_cnt*100;
+		set_spd[2] = key_cnt*-100;
+		set_spd[3] = key_cnt*-100;
+	}
+	if (key_cnt == 5){   //0, 2 go front left slant
+				set_spd[0] = key_cnt*-100; 
+		set_spd[1] = key_cnt*0;
+		set_spd[2] = key_cnt*100;
+		set_spd[3] = key_cnt*0;
+	}
+	if (key_cnt == 6){ //1,3 go front right  slant
+				set_spd[0] = key_cnt*0; 
+		set_spd[1] = key_cnt*100;
+		set_spd[2] = key_cnt*0;
+		set_spd[3] = key_cnt*-100;
+	}
+	if (key_cnt == 7){  // 1, 3 back left slant
+				set_spd[0] = key_cnt*0; 
+		set_spd[1] = key_cnt*-100;
+		set_spd[2] = key_cnt*0;
+		set_spd[3] = key_cnt*100;
+	}
+	if (key_cnt == 8){ // 0, 2 back right slant
+				set_spd[0] = key_cnt*100; 
+		set_spd[1] = key_cnt*0;
+		set_spd[2] = key_cnt*-100;
+		set_spd[3] = key_cnt*0;
+	}
+	if (key_cnt == 9){ // rotate clock
+				set_spd[0] = key_cnt*-100; 
+		set_spd[1] = key_cnt*-100;
+		set_spd[2] = key_cnt*-100;
+		set_spd[3] = key_cnt*-100;
+	}
+	if (key_cnt == 10){ // rotate cunclock
+				set_spd[0] = key_cnt*100; 
+		set_spd[1] = key_cnt*100;
+		set_spd[2] = key_cnt*100;
+		set_spd[3] = key_cnt*100;
+	}
+	
 #elif defined PWM_CONTROL
     set_spd[0] = set_spd[1] = set_spd[2] = set_spd[3] = key_cnt*50;
 #endif    
